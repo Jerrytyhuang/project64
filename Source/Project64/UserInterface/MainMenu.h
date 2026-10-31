@@ -135,6 +135,10 @@ enum MainMenuID
     ID_HELP_DISCORD,
     ID_HELP_WEBSITE,
     ID_HELP_ABOUT,
+
+    // File menu (settings import/export)
+    ID_FILE_IMPORT_SETTINGS,
+    ID_FILE_EXPORT_SETTINGS,
 };
 
 class CMainGui;
@@ -169,6 +173,8 @@ private:
     void OnEnhancements(HWND hWnd);
     void OnCheats(HWND hWnd);
     void OnSettings(HWND hWnd);
+    void OnImportSettings(HWND hWnd);
+    void OnExportSettings(HWND hWnd);
     void OnSupportProject64(HWND hWnd);
 
     void FillOutMenu(HMENU hMenu);

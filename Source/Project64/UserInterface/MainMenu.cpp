@@ -5,6 +5,7 @@
 #include "DiscordRPC.h"
 #include "RomInformation.h"
 #include <Project64-core/N64System/N64Disk.h>
+#include <Project64-core/Settings/SettingType/SettingsType-Application.h>
 #include <Project64\UserInterface\About.h>
 #include <commdlg.h>
 #include <windows.h>
@@ -298,6 +299,69 @@ void CMainMenu::OnSettings(HWND hWnd)
     CSettingConfig().Display(hWnd);
 }
 
+void CMainMenu::OnImportSettings(HWND hWnd)
+{
+    CPath FileName;
+    const char * Filter = "Project64 settings (*.cfg, *.ini)\0*.cfg;*.ini\0All files (*.*)\0*.*\0";
+    if (!FileName.SelectFile(hWnd, CPath(CPath::MODULE_DIRECTORY), Filter, true))
+    {
+        return;
+    }
+
+    if (!CSettingTypeApplication::ImportSettings(FileName))
+    {
+        MessageBox(hWnd, wGS(MSG_SETTINGS_IMPORT_FAILED).c_str(), wGS(MSG_MSGBOX_ERROR_TITLE).c_str(), MB_OK | MB_ICONERROR);
+        return;
+    }
+
+    if (MessageBox(hWnd, wGS(MSG_SETTINGS_IMPORTED).c_str(), wGS(MENU_IMPORT_SETTINGS).c_str(), MB_YESNO | MB_ICONQUESTION) == IDYES)
+    {
+        wchar_t ExePath[MAX_PATH];
+        if (GetModuleFileName(nullptr, ExePath, MAX_PATH) != 0)
+        {
+            STARTUPINFO si = {sizeof(si)};
+            PROCESS_INFORMATION pi = {0};
+            if (CreateProcess(ExePath, nullptr, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi))
+            {
+                CloseHandle(pi.hThread);
+                CloseHandle(pi.hProcess);
+                DestroyWindow(hWnd);
+            }
+        }
+    }
+}
+
+void CMainMenu::OnExportSettings(HWND hWnd)
+{
+    wchar_t SaveFileString[MAX_PATH] = L"Project64-settings.cfg";
+    std::wstring InitialDirectory = stdstr((const char *)CPath(CPath::MODULE_DIRECTORY)).ToUTF16();
+
+    OPENFILENAME openfilename;
+    memset(&openfilename, 0, sizeof(openfilename));
+    openfilename.lStructSize = sizeof(openfilename);
+    openfilename.hwndOwner = hWnd;
+    openfilename.lpstrFilter = L"Project64 settings (*.cfg)\0*.cfg\0All files (*.*)\0*.*\0";
+    openfilename.lpstrFile = SaveFileString;
+    openfilename.lpstrInitialDir = InitialDirectory.c_str();
+    openfilename.nMaxFile = MAX_PATH;
+    openfilename.lpstrDefExt = L"cfg";
+    openfilename.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
+
+    if (!GetSaveFileName(&openfilename))
+    {
+        return;
+    }
+
+    if (CSettingTypeApplication::ExportSettings(stdstr().FromUTF16(SaveFileString).c_str()))
+    {
+        MessageBox(hWnd, wGS(MSG_SETTINGS_EXPORTED).c_str(), wGS(MENU_EXPORT_SETTINGS).c_str(), MB_OK | MB_ICONINFORMATION);
+    }
+    else
+    {
+        MessageBox(hWnd, wGS(MSG_SETTINGS_EXPORT_FAILED).c_str(), wGS(MSG_MSGBOX_ERROR_TITLE).c_str(), MB_OK | MB_ICONERROR);
+    }
+}
+
 void CMainMenu::OnSupportProject64(HWND hWnd)
 {
     CSupportWindow(m_Gui->Support()).Show(hWnd, false);
@@ -335,6 +399,8 @@ bool CMainMenu::ProcessMessage(HWND hWnd, DWORD /*FromAccelerator*/, DWORD MenuI
         WriteTrace(TraceUserInterface, TraceDebug, "ID_FILE_ROMDIRECTORY 3");
         break;
     case ID_FILE_REFRESHROMLIST: m_Gui->RefreshRomList(); break;
+    case ID_FILE_IMPORT_SETTINGS: OnImportSettings(hWnd); break;
+    case ID_FILE_EXPORT_SETTINGS: OnExportSettings(hWnd); break;
     case ID_FILE_EXIT: DestroyWindow((HWND)hWnd); break;
     case ID_SYSTEM_RESET_SOFT:
         WriteTrace(TraceUserInterface, TraceDebug, "ID_SYSTEM_RESET_SOFT");
@@ -836,6 +902,11 @@ void CMainMenu::FillOutMenu(HMENU hMenu)
     FileMenu.push_back(Item);
     FileMenu.push_back(MENU_ITEM(SPLITER));
     Item.Reset(SUB_MENU, MENU_LANGUAGE, EMPTY_STDSTR, &LangMenu);
+    FileMenu.push_back(Item);
+    Item.Reset(ID_FILE_IMPORT_SETTINGS, MENU_IMPORT_SETTINGS);
+    Item.SetItemEnabled(!CPURunning);
+    FileMenu.push_back(Item);
+    Item.Reset(ID_FILE_EXPORT_SETTINGS, MENU_EXPORT_SETTINGS);
     FileMenu.push_back(Item);
     if (RomList)
     {

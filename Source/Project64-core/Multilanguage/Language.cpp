@@ -41,6 +41,8 @@ void CLanguage::LoadDefaultStrings(void)
     DEF_STR(MENU_RECENT_DIR, "Recent ROM Directories");
     DEF_STR(MENU_EXIT, "E&xit");
     DEF_STR(MENU_OPEN_COMBO, "Open &Combo");
+    DEF_STR(MENU_IMPORT_SETTINGS, "I&mport Settings...");
+    DEF_STR(MENU_EXPORT_SETTINGS, "Ex&port Settings...");
 
     // System menu
     DEF_STR(MENU_SYSTEM, "&System");
@@ -522,6 +524,10 @@ void CLanguage::LoadDefaultStrings(void)
     DEF_STR(MSG_ROM_INVALID_IMAGE_FILE, "Invalid image file");
     DEF_STR(MSG_ROM_FAILED_ROM_ALLOCATE, "Failed to allocate for rom");
     DEF_STR(MSG_ROM_FAILED_TO_OPEN, "Failed to open rom");
+    DEF_STR(MSG_SETTINGS_IMPORTED, "Settings imported. Project64 needs to restart to apply them.\n\nRestart now?");
+    DEF_STR(MSG_SETTINGS_IMPORT_FAILED, "Failed to import settings. The file could not be read or contains no settings.");
+    DEF_STR(MSG_SETTINGS_EXPORTED, "Settings exported.");
+    DEF_STR(MSG_SETTINGS_EXPORT_FAILED, "Failed to export settings.");
 
     /*** Android ***/
 

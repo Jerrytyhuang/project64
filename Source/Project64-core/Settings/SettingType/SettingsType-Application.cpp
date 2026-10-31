@@ -122,6 +122,52 @@ void CSettingTypeApplication::ResetAll()
     }
 }
 
+bool CSettingTypeApplication::ExportSettings(const char * FileName)
+{
+    if (m_SettingsIniFile == nullptr)
+    {
+        return false;
+    }
+    Flush();
+    CPath SettingsFile(m_SettingsIniFile->GetFileName().c_str());
+    return SettingsFile.CopyTo(FileName, true);
+}
+
+bool CSettingTypeApplication::ImportSettings(const char * FileName)
+{
+    if (m_SettingsIniFile == nullptr || !CPath(FileName).Exists())
+    {
+        return false;
+    }
+
+    CIniFile ImportFile(FileName, false, true);
+    if (!ImportFile.IsFileOpen())
+    {
+        return false;
+    }
+
+    CIniFile::SectionList Sections;
+    ImportFile.GetVectorOfSections(Sections);
+    bool Imported = false;
+    for (CIniFile::SectionList::const_iterator Section = Sections.begin(); Section != Sections.end(); Section++)
+    {
+        CIniFile::KeyValueData Data;
+        ImportFile.GetKeyValueData(Section->c_str(), Data);
+        for (CIniFile::KeyValueData::const_iterator Item = Data.begin(); Item != Data.end(); Item++)
+        {
+            // Do not allow an imported file to redirect where the settings are stored
+            if (_stricmp(Section->c_str(), "Settings") == 0 && _stricmp(Item->first.c_str(), "ConfigFile") == 0)
+            {
+                continue;
+            }
+            m_SettingsIniFile->SaveString(Section->c_str(), Item->first.c_str(), Item->second.c_str());
+            Imported = true;
+        }
+    }
+    Flush();
+    return Imported;
+}
+
 void CSettingTypeApplication::CleanUp()
 {
     if (m_SettingsIniFile)

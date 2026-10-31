@@ -47,6 +47,8 @@ public:
     static void CleanUp(void);
     static void Flush(void);
     static void ResetAll(void);
+    static bool ExportSettings(const char * FileName);
+    static bool ImportSettings(const char * FileName);
 
     const char * GetKeyName(void) const
     {
