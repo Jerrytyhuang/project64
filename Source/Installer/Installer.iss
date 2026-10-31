@@ -2,14 +2,14 @@
 #define AppVersion GetFileVersion(BaseDir + "\Bin\" + Platform + "\" + Configuration + "\Project64.exe")
 
 [Setup]
-AppId={{BEB5FB69-4080-466F-96C4-F15DF271718B}
-AppName=Project64
+AppId={{7029AE65-B63A-4B8D-B80A-1573572B7C7A}
+AppName=Project64 Custom
 AppVersion={#AppVersion}
-DefaultDirName={pf32}\Project64 Dev 4.0
+DefaultDirName={pf32}\Project64 Custom
 VersionInfoVersion={#AppVersion}
 OutputDir={#BaseDir}\Bin\{#Platform}\{#Configuration}
-OutputBaseFilename=Setup Project64 Dev 4.0
-VersionInfoDescription=Installation Setup of Project64 Dev 4.0
+OutputBaseFilename=Setup Project64 Custom
+VersionInfoDescription=Installation Setup of Project64 Custom
 Compression=lzma2/ultra64
 WizardImageFile=Installer-Sidebar.bmp
 WizardSmallImageFile=Pj64LogoSmallImage.bmp
@@ -42,6 +42,8 @@ Source: "{#BaseDir}\Plugin\{#Platform}\RSP\Project64-RSP.dll"; DestDir: "{app}\P
 Source: "{#BaseDir}\Scripts\example.js"; DestDir: "{app}\Scripts"
 Source: "{#BaseDir}\Scripts\api_documentation.js"; DestDir: "{app}\Scripts"
 Source: "{#BaseDir}\JS-API-Documentation.html"; DestDir: "{app}"
+Source: "{#BaseDir}\Profiles\*.cfg"; DestDir: "{app}\Profiles"
+Source: "{#BaseDir}\Profiles\ThinkPad-T14-Gen2-AMD.cfg"; DestDir: "{app}\Config"; DestName: "Project64.cfg"; Tasks: laptopprofile; Flags: onlyifdoesntexist
 
 [Dirs]
 Name: "{app}\Config"; Permissions: everyone-full
@@ -59,3 +61,4 @@ Name: "{commonprograms}\Project64"; Filename: "{app}\Project64.exe"
 [Tasks]
 Name: desktopicon; Description: "Create a &desktop icon"
 Name: portablemode; Description: "&Portable Mode"; Flags: unchecked
+Name: laptopprofile; Description: "Apply the &ThinkPad T14 Gen 2 AMD settings profile (only if no settings exist yet)"
